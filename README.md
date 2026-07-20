@@ -1,5 +1,5 @@
 # Passage data
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/APepey/passage-data/main)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/APepey/passage-data/HEAD?urlpath=%2Fdoc%2Ftree%2Fdetermine-passage-category.ipynb)
 
  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ⬆️ Click the icon to run the `determine-passage-intensity` notebook in your browser.
 
