@@ -15,7 +15,6 @@ Notes:
 # %% imports
 import pandas as pd
 import geopandas as gpd
-from shapely.geometry import Point
 import numpy as np
 
 # %% Load dataset
@@ -68,7 +67,14 @@ gps_gdf = gpd.GeoDataFrame(
 
 # %% Buffer analysis with source breakdown
 buffer_distances_m = [500, 1000, 2000]
-source_types = ['2018', '2019', 'F1', 'F2', 'F1+F2']
+source_types = [
+    '2018',
+    '2019',
+    '2018+2019',
+    'F1',
+    'F2',
+    'F1+F2'
+]
 results = []
 
 print("\nProcessing buffers...")
@@ -91,7 +97,7 @@ for idx, site in sites_gdf.iterrows():
         buffer_geom = site_utm.geometry.iloc[0].buffer(buffer_m)
 
         # Total count
-        points_in_buffer = gps_utm[gps_utm.geometry.within(buffer_geom)]
+        points_in_buffer = gps_utm[gps_utm.geometry.intersects(buffer_geom)] #TODO: try within if small accuracy
         point_count = len(points_in_buffer)
 
         row = {
@@ -105,12 +111,28 @@ for idx, site in sites_gdf.iterrows():
 
         # Per-source breakdown
         for src in source_types:
-            if src == 'F1+F2':
-                src_count = len(points_in_buffer[
-                    points_in_buffer['source'].isin(['F1', 'F2'])
-                ])
+
+            if src == '2018+2019':
+                src_count = len(
+                    points_in_buffer[
+                        points_in_buffer['source'].isin(['2018', '2019'])
+                    ]
+                )
+
+            elif src == 'F1+F2':
+                src_count = len(
+                    points_in_buffer[
+                        points_in_buffer['source'].isin(['F1', 'F2'])
+                    ]
+                )
+
             else:
-                src_count = len(points_in_buffer[points_in_buffer['source'] == src])
+                src_count = len(
+                    points_in_buffer[
+                        points_in_buffer['source'] == src
+                    ]
+                )
+
             row[f'Points_{src}'] = src_count
 
         results.append(row)
@@ -134,7 +156,15 @@ print("\n" + "="*70)
 print("SUMMARY STATISTICS")
 print("="*70)
 
-source_cols = [f'Points_{s}' for s in source_types]
+source_cols = [
+    'Points_total',
+    'Points_2018',
+    'Points_2019',
+    'Points_2018+2019',
+    'Points_F1',
+    'Points_F2',
+    'Points_F1+F2'
+]
 
 for buffer_m in buffer_distances_m:
     subset = results_df[results_df['Buffer_m'] == buffer_m]
@@ -145,7 +175,7 @@ for buffer_m in buffer_distances_m:
             print(f"  {passage} passage: 0 sites")
             continue
         print(f"\n  {passage} passage ({len(sub)} sites):")
-        cols_to_show = ['Points_total'] + source_cols
+        cols_to_show = source_cols
         print(sub[cols_to_show].describe())
 
 # %% Correlation analysis
@@ -155,12 +185,18 @@ print("="*70)
 
 results_df['Passage_numeric'] = (results_df['Passage'] == 'high').astype(int)
 
+
+for threshold in [500, 1000, 2000, 3000, 5000]:
+    pred = results_df["Points_total"] > threshold
+    acc = (pred == (results_df["Passage"] == "high")).mean()
+    print(threshold, acc)
+
 # Check for constant values
 if results_df['Passage_numeric'].std() == 0:
     print("\n⚠ Passage is constant (all 'high' or all 'low') — correlation undefined.")
     print("   You need both classes represented to compute correlation.")
 else:
-    corr_cols = ['Points_total'] + source_cols
+    corr_cols = source_cols
     for buffer_m in buffer_distances_m:
         subset = results_df[results_df['Buffer_m'] == buffer_m]
         print(f"\n  {buffer_m/1000:.1f} km buffer:")
