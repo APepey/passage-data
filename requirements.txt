@@ -1,0 +1,4 @@
+pandas==3.0.3
+geopandas
+pyproj
+numpy
