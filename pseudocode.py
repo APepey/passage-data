@@ -5,7 +5,6 @@ to determine what drives high/low passage classifications (done years ago, do no
 
 # %% imports
 import pandas as pd
-import geopandas as gpd
 
 # %% Load dataset
 dataset = pd.read_csv("outputs/merged_dataset.csv", index_col=0)

@@ -10,7 +10,7 @@ buffer_distances_m = list(range(100, 500, 50)) + list(range(500, 2000, 250)) + l
 source_types = ["2018", "2019", "2018+2019", "F1", "F2", "F1+F2", "2019+F1+F2", "total"]
 print(f"buffer distances (m): {buffer_distances_m}")
 
-# %% Load dataset
+# %% Load dataset and correct data types
 dataset = pd.read_csv("merged_dataset.csv", sep=";")
 dataset[["Longitude", "Latitude"]] = dataset[["Longitude", "Latitude"]].apply(
     lambda col: col.astype(str).str.replace(",", ".").astype(float)
@@ -37,9 +37,14 @@ gps_sources = {
     "Alltracks_subcohort_F2.csv": "F2",
 }
 
-# %% Load GPS tracks
+# initialise objects
 alltracks = pd.DataFrame()
+prediction_tables = []
+results = []
+count_tables = []
+median_results = []
 
+# %% Load GPS tracks
 for gps_file, source_label in gps_sources.items():
     tracks = pd.read_csv(f"gps_points/{gps_file}", index_col=0)
 
@@ -63,11 +68,6 @@ sites_utm = gpd.GeoDataFrame(
 gps_utm = gpd.GeoDataFrame(
     alltracks, geometry=gpd.points_from_xy(alltracks.x__geo_, alltracks.y__geo_), crs="EPSG:4326"
 ).to_crs("EPSG:32648")
-
-# %% Initialise lists
-results = []
-count_tables = []
-median_results = []
 
 # %% Grid search
 for src in source_types:
@@ -125,16 +125,35 @@ for src in source_types:
 
             median_results.append({"LU": lu, "source": src, "buffer": buffer, "agreement": agreement})
 
+            # store actual + predicted passages
+            pred_tmp = dataset.loc[mask, ["LU", "Longitude", "Latitude", "Passage"]].copy()
+            pred_tmp["actual_passage"] = pred_tmp["Passage"]
+            pred_tmp["predicted_passage"] = predicted.loc[mask].values
+            pred_tmp["source"] = src
+            pred_tmp["buffer"] = buffer
+            pred_tmp["gps_count"] = gps_count.loc[mask].values
+
+            prediction_tables.append(pred_tmp)
 
 # %% median results
-median_results = pd.DataFrame(median_results).sort_values("agreement", ascending=False)
+os.makedirs("outputs", exist_ok=True)
+
+prediction_tables = pd.concat(prediction_tables, ignore_index=True)
+prediction_tables.to_csv("outputs/passage_predictions.csv", index=False)
 
 count_tables = pd.concat(count_tables, ignore_index=True)
-
-os.makedirs("outputs", exist_ok=True)
 count_tables.to_csv("outputs/buffer_point_counts.csv", index=False)
 
-print("\nBest median-split results")
-print(median_results.head(5))
+median_results = pd.DataFrame(median_results)
+median_results.to_csv("outputs/LU_buffer_source_agreements.csv", index=False)
 
+# %% best results
+median_results = pd.DataFrame(median_results)
+
+best_results = (
+    median_results.sort_values(["LU", "agreement"], ascending=[True, False]).groupby("LU").first().reset_index()
+)
+best_results.to_csv("outputs/best_LU_source_buffer.csv", index=False)
+
+print(best_results)
 # %%
