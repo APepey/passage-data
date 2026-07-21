@@ -1,6 +1,5 @@
 pandas
 geopandas
-pyproj
 numpy
 scikit-learn
 black

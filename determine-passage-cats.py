@@ -1,4 +1,5 @@
 # %% imports
+import os
 import pandas as pd
 import numpy as np
 import geopandas as gpd
@@ -10,7 +11,7 @@ source_types = ["2018", "2019", "2018+2019", "F1", "F2", "F1+F2", "2019+F1+F2", 
 print(f"buffer distances (m): {buffer_distances_m}")
 
 # %% Load dataset
-dataset = pd.read_csv("outputs/merged_dataset.csv", sep=";")
+dataset = pd.read_csv("merged_dataset.csv", sep=";")
 dataset[["Longitude", "Latitude"]] = dataset[["Longitude", "Latitude"]].apply(
     lambda col: col.astype(str).str.replace(",", ".").astype(float)
 )
@@ -129,6 +130,8 @@ for src in source_types:
 median_results = pd.DataFrame(median_results).sort_values("agreement", ascending=False)
 
 count_tables = pd.concat(count_tables, ignore_index=True)
+
+os.makedirs("outputs", exist_ok=True)
 count_tables.to_csv("outputs/buffer_point_counts.csv", index=False)
 
 print("\nBest median-split results")

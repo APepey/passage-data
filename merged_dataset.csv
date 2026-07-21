@@ -1,0 +1,61 @@
+;TrapType;Round;Latitude;Longitude;Site_code;LU;Passage;Village
+0;hdn;1;12,1887377;106,79964;fih01;fields;high;Sraeampilleu
+1;hlc;1;12,1883008;106,7991378;fih01;fields;high;Sraeampilleu
+2;hdn;1;12,1525686;106,8520431;fih02;fields;high;Sraeampilkroam
+3;hdn;1;12,1763463;106,871809;fih03;fields;high;Sraektum
+4;hdn;1;12,1817237;106,9221603;fih04;fields;high;Sraelvy
+5;hdn;1;12,2356806;106,957178;fih05;fields;high;Gati
+6;hdn;1;12,1917851;106,805554;fil01;fields;low;Sraeampilleu
+7;hlc;1;12,191717;106,8048979;fil01;fields;low;Sraeampilleu
+8;hdn;1;12,150059;106,8483545;fil02;fields;low;Sraeampilkroam
+9;hdn;1;12,1794673;106,9169164;fil03;plantation ;high;Sraelvy
+10;hdn;1;12,1873011;106,919734;fil04;fields;low;Sraelvy
+11;hdn;1;12,242422;106,9629615;fil05;fields;low;Gati
+12;cdc;1;12,2252293;106,8604134;foh01;forest;high;Poucha
+13;hdn;1;12,2250481;106,8602616;foh01;forest;high;Poucha
+14;cdc;1;12,2368916;106,8774619;foh02;forest;high;Poucha
+15;hdn;1;12,2371351;106,8772845;foh02;forest;high;Poucha
+16;cdc;1;12,2316632;106,9171737;foh03;forest;high;Gati
+17;hdn;1;12,2310645;106,9168633;foh03;forest;high;Gati
+18;hlc;1;12,2306842;106,9175149;foh03;forest;high;Gati
+19;cdc;1;12,1849691;106,9080226;foh04;forest;high;Sraelvy
+20;hdn;1;12,1850457;106,9080893;foh04;forest;high;Sraelvy
+21;hdn;1;12,2850191;106,9935739;foh05;forest;high;Gati
+22;hlc;1;12,2841346;106,9932954;foh05;forest;high;Gati
+23;cdc;1;12,2234402;106,8616537;fol01;forest;low;Poucha
+24;hdn;1;12,2238564;106,8619391;fol01;forest;low;Poucha
+25;cdc;1;12,2255919;106,8754862;fol02;forest;low;Poucha
+26;hdn;1;12,2256516;106,8759381;fol02;forest;low;Poucha
+27;hdn;1;12,1803147;106,917212;fol03;forest;low;Sraelvy
+28;hdn;1;12,1861479;106,9111214;fol04;forest;low;Sraelvy
+29;cdc;1;12,1741592;106,8347805;fol05;forest;low;Sraeampilkroam
+30;hdn;1;12,1745424;106,8345382;fol05;forest;low;Sraeampilkroam
+31;hdn;1;12,1711765;106,7732576;ph01;plantation ;high;Sraeampilleu
+32;hdn;1;12,1636483;106,8306605;ph02;plantation ;high;Sraeampilkroam
+33;hdn;1;12,1648796;106,8564168;ph03;plantation ;high;Sraeampilkroam
+34;hdn;1;12,1806422;106,8777499;ph04;plantation ;high;Sraektum
+35;hlc;1;12,1705227;106,8777595;ph04;plantation ;high;Sraektum
+36;hdn;1;12,1763105;106,9008295;ph05;plantation ;high;Sraelvy
+37;hdn;1;12,184547;106,7731955;pl01;plantation ;low;Sraeampilleu
+38;hlc;1;12,1853123;106,773629;pl01;plantation ;low;Sraeampilleu
+39;hdn;1;12,2117563;106,8424026;pl02;plantation ;low;Poucha
+40;hlc;1;12,211511;106,8420694;pl02;plantation ;low;Poucha
+41;hdn;1;12,1803546;106,865374;pl03;plantation ;low;Sraektum
+42;hdn;1;12,1739902;106,874984;pl04;plantation ;low;Sraektum
+43;hdn;1;12,1740094;106,9044719;pl05;plantation ;low;Sraelvy
+44;hdn;1;12,2309438;106,9500967;v01;village;high;Gati
+45;hdn;1;12,210546;106,8566589;v02;village;high;Poucha
+46;hlc;1;12,2105124;106,858253;v02;village;high;Poucha
+47;scr;1;12,2103291;106,8564327;v02;village;high;Poucha
+48;hdn;1;12,2388678;106,8485783;v03;village;high;Ochra
+49;hlc;1;12,2374809;106,8482933;v03;village;high;Ochra
+50;scr;1;12,2398422;106,8501618;v03;village;high;Ochra
+51;hdn;1;12,1731367;106,831314;v04;village;high;Sraeampilkroam
+52;hlc;1;12,1735415;106,8309411;v04;village;high;Sraeampilkroam
+53;scr;1;12,1721261;106,831404;v04;village;high;Sraeampilkroam
+54;hdn;1;12,1885452;106,8421551;v05;village;high;Sraeampilleu
+55;scr;1;12,191216;106,8434992;v05;village;high;Sraeampilleu
+56;hdn;1;12,1814026;106,8748907;v06;village;high;Sraektum
+57;scr;1;12,1806253;106,8734571;v06;village;high;Sraektum
+58;hdn;1;12,1834323;106,9125825;v07;village;high;Sraelvy
+59;scr;1;12,1848448;106,9127728;v07;village;high;Sraelvy

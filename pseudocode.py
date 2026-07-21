@@ -21,11 +21,11 @@ gps_sources = {
 }
 
 # %% Buffer analysis with source breakdown
-buffer_distances_m = [100, 500, 1000, 1500, 2000, 5000]
-source_types = ["2018", "2019", "2018+2019", "F1", "F2", "F1+F2" "total"]
+buffer_distances_m = []
+source_types = []
 
 
-# TODO: drop all rows where dataset.LU == 'village'
+# TODO: drop useless rows
 
 alltracks = pd.DataFrame()
 for gps_file, source_label in gps_sources.items():
@@ -41,7 +41,6 @@ for gps_file, source_label in gps_sources.items():
 print(f"\nTotal GPS points: {len(alltracks)}")
 print(f"Collection sites: {len(dataset)}")
 
-methods = ["intersects", "within"]
 gps_utm = "TODO"
 # TODO: create spatial data from df
 

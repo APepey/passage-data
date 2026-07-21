@@ -23,7 +23,7 @@ codes["Site_code"] = codes["Site_code"].str.lower()
 # %%
 full_dataset = values_clean.merge(on=["Site_code"], right=codes)
 # %%
-full_dataset.to_csv("outputs/merged_dataset.csv")
+full_dataset.to_csv("merged_dataset.csv")
 # %%
 cols = [
     "Count2018",
