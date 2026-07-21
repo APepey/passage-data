@@ -4,9 +4,10 @@ import numpy as np
 import geopandas as gpd
 from sklearn.metrics import accuracy_score
 
-# Search parameters
-buffer_distances_m = [100, 200, 500, 1000, 1500, 2000]
-source_types = ["2018", "2019", "2018+2019", "F1", "F2", "F1+F2", "total"]
+# %% Search parameters
+buffer_distances_m = list(range(100, 500, 50)) + list(range(500, 2000, 250)) + list(range(2000, 5001, 500))
+source_types = ["2018", "2019", "2018+2019", "F1", "F2", "F1+F2", "2019+F1+F2", "total"]
+print(f"buffer distances (m): {buffer_distances_m}")
 
 # %% Load dataset
 dataset = pd.read_csv("outputs/merged_dataset.csv", sep=";")
@@ -16,10 +17,17 @@ dataset[["Longitude", "Latitude"]] = dataset[["Longitude", "Latitude"]].apply(
 
 # %% drop village category (all were defined as high passage)
 dataset = dataset[dataset.LU != "village"].copy()
+print("dropped village row")
 
 # keep only HDN traps
 dataset = dataset[dataset.TrapType == "hdn"].copy()
+print("dropped non-HDN trap")
 
+# only round 1 (gps loc varied slightly on round 2, but passage was already defined)
+dataset = dataset[dataset.Round == 1].copy()
+print("dropped data (slightly different lat/long) from round 2 of mosquito collection")
+
+# read csv files
 gps_sources = {
     "Alltracks2018.csv": "2018",
     "Alltracks_2019_1.csv": "2019",
@@ -75,6 +83,10 @@ for src in source_types:
         gps_subset = gps_utm[gps_utm.source == "F2"]
     elif src == "F1+F2":
         gps_subset = gps_utm[gps_utm.source.isin(["F1", "F2"])]
+    elif src == "2019+F1+F2":
+        gps_subset = gps_utm[gps_utm.source.isin(["2019", "F1", "F2"])]  # the more recent ones
+    elif src == "F1+2019":
+        gps_subset = gps_utm[gps_utm.source.isin(["F1", "2019"])]  # maybe the only ones available at that time
     else:
         gps_subset = gps_utm
 
@@ -98,22 +110,6 @@ for src in source_types:
         count_tables.append(tmp)
         thresholds = np.unique(gps_count.astype(int))
 
-        # threshold method
-        for threshold in thresholds:
-
-            predicted = pd.Series("low", index=sites_utm.index)
-            predicted[gps_count >= threshold] = "high"
-
-            for lu in dataset.LU.unique():
-
-                mask = dataset.LU == lu
-
-                agreement = accuracy_score(dataset.loc[mask, "Passage"], predicted.loc[mask])
-
-                results.append(
-                    {"LU": lu, "source": src, "buffer": buffer, "threshold": threshold, "agreement": agreement}
-                )
-
         # median split method (once per source-buffer)
         for lu in dataset.LU.unique():
 
@@ -129,13 +125,6 @@ for src in source_types:
             median_results.append({"LU": lu, "source": src, "buffer": buffer, "agreement": agreement})
 
 
-# %% agreement results
-results = pd.DataFrame(results).sort_values("agreement", ascending=False)
-results.to_csv("outputs/agreement_results.csv", index=False)
-
-print("\nBest threshold results")
-print(results.head(20))
-
 # %% median results
 median_results = pd.DataFrame(median_results).sort_values("agreement", ascending=False)
 
@@ -143,6 +132,6 @@ count_tables = pd.concat(count_tables, ignore_index=True)
 count_tables.to_csv("outputs/buffer_point_counts.csv", index=False)
 
 print("\nBest median-split results")
-print(median_results.head(20))
+print(median_results.head(5))
 
 # %%
