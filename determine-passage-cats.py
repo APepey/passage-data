@@ -4,14 +4,21 @@ import numpy as np
 import geopandas as gpd
 from sklearn.metrics import accuracy_score
 
+# Search parameters
+buffer_distances_m = [100, 200, 500, 1000, 1500, 2000]
+source_types = ["2018", "2019", "2018+2019", "F1", "F2", "F1+F2", "total"]
+
 # %% Load dataset
 dataset = pd.read_csv("outputs/merged_dataset.csv", sep=";")
 dataset[["Longitude", "Latitude"]] = dataset[["Longitude", "Latitude"]].apply(
     lambda col: col.astype(str).str.replace(",", ".").astype(float)
 )
 
-# Drop villages
+# %% drop village category (all were defined as high passage)
 dataset = dataset[dataset.LU != "village"].copy()
+
+# keep only HDN traps
+dataset = dataset[dataset.TrapType == "hdn"].copy()
 
 gps_sources = {
     "Alltracks2018.csv": "2018",
@@ -39,8 +46,7 @@ for gps_file, source_label in gps_sources.items():
 print(f"\nTotal GPS points: {len(alltracks)}")
 print(f"Collection sites: {len(dataset)}")
 
-# %% Create GeoDataFrames (Cambodia UTM 48N)
-
+# %% Create GeoDataFrames (Cambodia: UTM 48N)
 sites_utm = gpd.GeoDataFrame(
     dataset, geometry=gpd.points_from_xy(dataset.Longitude, dataset.Latitude), crs="EPSG:4326"
 ).to_crs("EPSG:32648")
@@ -49,17 +55,12 @@ gps_utm = gpd.GeoDataFrame(
     alltracks, geometry=gpd.points_from_xy(alltracks.x__geo_, alltracks.y__geo_), crs="EPSG:4326"
 ).to_crs("EPSG:32648")
 
-# %% Search parameters
-
-buffer_distances_m = [100, 500, 1000, 1500, 2000, 5000]
-thresholds = np.linspace(100, 10000, 1000)
-
-source_types = ["2018", "2019", "2018+2019", "F1", "F2", "F1+F2", "total"]
-
+# %% Initialise lists
 results = []
 count_tables = []
-# %% Grid search
+median_results = []
 
+# %% Grid search
 for src in source_types:
 
     if src == "2018":
@@ -95,7 +96,9 @@ for src in source_types:
         tmp["gps_count"] = gps_count.values
 
         count_tables.append(tmp)
+        thresholds = np.unique(gps_count.astype(int))
 
+        # threshold method
         for threshold in thresholds:
 
             predicted = pd.Series("low", index=sites_utm.index)
@@ -111,24 +114,35 @@ for src in source_types:
                     {"LU": lu, "source": src, "buffer": buffer, "threshold": threshold, "agreement": agreement}
                 )
 
+        # median split method (once per source-buffer)
+        for lu in dataset.LU.unique():
+
+            mask = dataset.LU == lu
+
+            ranks = gps_count.loc[mask].rank(method="first")
+
+            predicted = pd.Series(index=gps_count.index, dtype=object)
+            predicted.loc[mask] = np.where(ranks > len(ranks) / 2, "high", "low")
+
+            agreement = accuracy_score(dataset.loc[mask, "Passage"], predicted.loc[mask])
+
+            median_results.append({"LU": lu, "source": src, "buffer": buffer, "agreement": agreement})
+
+
+# %% agreement results
 results = pd.DataFrame(results).sort_values("agreement", ascending=False)
+results.to_csv("outputs/agreement_results.csv", index=False)
+
+print("\nBest threshold results")
+print(results.head(20))
+
+# %% median results
+median_results = pd.DataFrame(median_results).sort_values("agreement", ascending=False)
+
 count_tables = pd.concat(count_tables, ignore_index=True)
 count_tables.to_csv("outputs/buffer_point_counts.csv", index=False)
 
-print(results.head(20))
-# %%
-for lu in dataset.LU.unique():
-
-    mask = dataset.LU == lu
-
-    pred = pd.Series(index=gps_count.index, dtype=object)
-
-    # lower half = low, upper half = high
-    ranks = gps_count.loc[mask].rank(method="first")
-    pred.loc[mask] = np.where(ranks > len(ranks) / 2, "high", "low")
-
-    agreement = accuracy_score(dataset.loc[mask, "Passage"], pred.loc[mask])
-
-    results.append({"LU": lu, "source": src, "buffer": buffer, "threshold": "median_split", "agreement": agreement})
+print("\nBest median-split results")
+print(median_results.head(20))
 
 # %%

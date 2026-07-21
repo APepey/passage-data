@@ -4,3 +4,4 @@ pyproj
 numpy
 scikit-learn
 black
+black[jupyter]
